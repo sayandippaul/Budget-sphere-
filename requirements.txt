@@ -3,7 +3,6 @@ flask-cors
 numpy
 joblib
 google-generativeai
-pickle
 json
 pandas
 random
