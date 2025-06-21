@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF to Text Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      margin-top: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h2>📄 PDF to Text Converter</h2>
+  <input type="file" id="pdfInput" accept="application/pdf">
+  <textarea id="textOutput" placeholder="Extracted text will appear here..."></textarea>
+
+  <script>
+    const pdfInput = document.getElementById('pdfInput');
+    const textOutput = document.getElementById('textOutput');
+
+    pdfInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file && file.type === "application/pdf") {
+        const fileReader = new FileReader();
+        fileReader.onload = function() {
+          const typedarray = new Uint8Array(this.result);
+
+          pdfjsLib.getDocument(typedarray).promise.then(async function(pdf) {
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const text = textContent.items.map(item => item.str).join(' ');
+              fullText += `\n\n--- Page ${i} ---\n\n${text}`;
+            }
+            textOutput.value = fullText.trim();
+          });
+        };
+        fileReader.readAsArrayBuffer(file);
+      } else {
+        alert("Please upload a valid PDF file.");
+      }
+    });
+  </script>
+</body>
+</html>

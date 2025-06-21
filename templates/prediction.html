@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FinMate Advisor</title>
+</head>
+<body>
+  <h2>Financial Planner</h2>
+  <form id="planForm">
+    Age: <input type="number" id="age" required><br><br>
+    Income: <input type="number" id="income" required><br><br>
+    Fixed Expenses: <input type="number" id="fixed_expenses" required><br><br>
+    Variable Expenses: <input type="number" id="variable_expenses" required><br><br>
+    Goal Amount: <input type="number" id="goal_amount" required><br><br>
+    Goal Duration (months): <input type="number" id="goal_duration" required><br><br>
+    Existing Savings: <input type="number" id="existing_savings" required><br><br>
+    
+    Risk (0=low,1=medium,2=high): <input type="number" id="risk_code" min="0" max="2" required><br><br>
+    City Tier (0=metro,1=tier_2,2=tier_3): <input type="number" id="city_code" min="0" max="2" required><br><br>
+
+    <button type="submit">Get Plan</button>
+  </form>
+
+  <h3>Plan Recommendation:</h3>
+  <pre id="result"></pre>
+
+  <script>
+    document.getElementById("planForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const data = {
+        age: +document.getElementById("age").value,
+        income: +document.getElementById("income").value,
+        fixed_expenses: +document.getElementById("fixed_expenses").value,
+        variable_expenses: +document.getElementById("variable_expenses").value,
+        goal_amount: +document.getElementById("goal_amount").value,
+        goal_duration: +document.getElementById("goal_duration").value,
+        existing_savings: +document.getElementById("existing_savings").value,
+        risk_code: +document.getElementById("risk_code").value,
+        city_code: +document.getElementById("city_code").value,
+      };
+
+      const res = await fetch("/api/predict_plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      document.getElementById("result").textContent = JSON.stringify(result, null, 2);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinMate Character Input</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6fa;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .character-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .character-img {
+      width: 120px;
+    }
+    .chat-box {
+      background: white;
+      border-radius: 12px;
+      padding: 15px 20px;
+      margin-left: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      max-width: 300px;
+    }
+    .chat-box p {
+      margin: 0;
+      font-size: 16px;
+    }
+    .input-box {
+      margin-top: 10px;
+    }
+    .input-box input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .next-btn {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="character-container">
+    <img src="https://lottie.host/embed/8b7f2f6a-4d3d-4e1f-8fd5-e73b64553601/3vEMXcnIUR.json" alt="Character" class="character-img" />
+    <div class="chat-box" id="chatBox">
+      <p id="chatText">Hello! I'm Finny 🦊. What's your name?</p>
+      <div class="input-box" id="inputContainer">
+        <input type="text" id="userInput" placeholder="Type your answer..." />
+        <button class="next-btn" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatText = document.getElementById("chatText");
+    const userInput = document.getElementById("userInput");
+
+    const flow = [
+      { text: "Hello! I'm Finny 🦊. What's your name?", field: "name" },
+      { text: "Nice to meet you, {name}! What's your monthly income?", field: "income" },
+      { text: "Got it! How much do you usually spend on food?", field: "food" },
+      { text: "Thanks! We'll use this to plan your budget! 🎯", field: null }
+    ];
+
+    const userData = {};
+    let step = 0;
+
+    function nextStep() {
+      const value = userInput.value.trim();
+      if (value === "" && flow[step].field) return;
+
+      const field = flow[step].field;
+      if (field) {
+        userData[field] = value;
+      }
+
+      step++;
+
+      if (step < flow.length) {
+        let nextText = flow[step].text;
+        Object.keys(userData).forEach(key => {
+          nextText = nextText.replace(`{${key}}`, userData[key]);
+        });
+        chatText.innerText = nextText;
+        userInput.value = "";
+        if (!flow[step].field) document.getElementById("inputContainer").style.display = "none";
+      } else {
+        chatText.innerText = "You're all set! 🚀";
+        document.getElementById("inputContainer").style.display = "none";
+        console.log("User Data:", userData);
+      }
+    }
+  </script>
+
+</body>
+</html>

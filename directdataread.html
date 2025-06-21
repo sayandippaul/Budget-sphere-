@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gmail Transaction Analyzer</title>
+  <meta name="google-signin-client_id" content="YOUR_CLIENT_ID_HERE.apps.googleusercontent.com">
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <h1>Read Gmail & Extract Financial Data</h1>
+  <div id="signin-button"></div>
+  <button onclick="signOut()">Sign Out</button>
+  <button onclick="analyzeTransactions()">Analyze Emails</button>
+  <ul id="email-list"></ul>
+  <pre id="gemini-response"></pre>
+
+  <script>
+    const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+    let tokenClient;
+    let gapiInited = false;
+    let gisInited = false;
+    let emailBodies = [];
+
+    function gapiLoaded() {
+      gapi.load('client', initializeGapiClient);
+    }
+
+    async function initializeGapiClient() {
+      await gapi.client.init({
+        apiKey: 'AIzaSyDcpeWWqbxbldfmuFvnR0pe9F7PqsGzFNo',
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+      });
+      gapiInited = true;
+      maybeEnableButtons();
+    }
+
+    function gisLoaded() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: '31628992962-m5n46j7rb9to747vgnufnn0ks2clb3je.apps.googleusercontent.com',
+        scope: SCOPES,
+        callback: '',
+      });
+      gisInited = true;
+      maybeEnableButtons();
+    }
+
+    function maybeEnableButtons() {
+      if (gapiInited && gisInited) {
+        document.getElementById("signin-button").innerHTML = '<button onclick="handleAuthClick()">Sign In & Load Emails</button>';
+      }
+    }
+
+    function handleAuthClick() {
+      tokenClient.callback = async (resp) => {
+        if (resp.error) throw resp;
+        await listMessages();
+      };
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    }
+
+    function signOut() {
+      google.accounts.oauth2.revoke(tokenClient.access_token, () => {
+        document.getElementById("email-list").innerHTML = '';
+        emailBodies = [];
+        alert("Signed out");
+      });
+    }
+
+    async function listMessages() {
+      const response = await gapi.client.gmail.users.messages.list({ userId: 'me', maxResults: 20 });
+      const messages = response.result.messages || [];
+      emailBodies = [];
+      document.getElementById('email-list').innerHTML = '';
+
+      for (const msg of messages) {
+        const msgDetail = await gapi.client.gmail.users.messages.get({ userId: 'me', id: msg.id, format: 'full' });
+        let body = '';
+        const parts = msgDetail.result.payload.parts;
+        if (parts && parts.length) {
+          for (const part of parts) {
+            if (part.mimeType === 'text/plain' && part.body?.data) {
+              body = atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+              break;
+            }
+          }
+        } else if (msgDetail.result.payload.body?.data) {
+          body = atob(msgDetail.result.payload.body.data.replace(/-/g, '+').replace(/_/g, '/'));
+        }
+
+        emailBodies.push(body);
+        const li = document.createElement('li');
+        li.innerText = body.substring(0, 100) + '...';
+        document.getElementById('email-list').appendChild(li);
+      }
+    }
+
+    async function analyzeTransactions() {
+      const prompt = `You are an AI that reads multiple email bodies related to bank or payment transactions.\nFrom all email bodies given below, extract 5 values:\n1. income\n2. fixed expenses\n3. essentials expenses\n4. lifestyle expenses\n5. savings\n\nOutput format: [income, fixed, essentials, lifestyle, savings]\n\nRules:\n- If none of these can be found in any email, return: [-1, -1, -1, -1, -1]\n- If any one of these is not found, return 0 in its place\n\nEMAIL BODIES:\n${emailBodies.join('\n')}`;
+
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyA3wIbJGWIc_5RlrtxfdwwN6lzF5xTZ-Vc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      const result = await response.json();
+      document.getElementById('gemini-response').innerText = JSON.stringify(result, null, 2);
+    }
+
+    window.onload = () => {
+      gapiLoaded();
+      gisLoaded();
+    };
+  </script>
+</body>
+</html>
