@@ -94,6 +94,7 @@ def analyze_emails_with_gemini(all_bodies: str) -> str:
     try:
         response = model.generate_content([{"role": "user", "parts": [{"text": prompt}]}])
         result = response.text.strip()
+        print("Generated Content: 1st stage", result)
         return midstage(result)  # Call midstage function to process the result
     except Exception as e:
         return f"Error generating content: {e}"
@@ -145,7 +146,7 @@ give points and how the money should be invested in the following categories:
     try:
         response = model.generate_content([{"role": "user", "parts": [{"text": prompt}]}])
         result = response.text.strip()
-
+        print("Generated Content: 3rd stage", result)
         return jsonify(result)
     except Exception as e:
         return f"Error generating content: {e}"
@@ -191,7 +192,10 @@ def midstage(input_string: str) -> None:
     for category, percent in zip(categories, prediction):
         #  output=output+"➤ {category}: Reduce by approximately {percent:.1f}%"
         output += f"\n➤ {category}: Reduce by approximately {percent:.1f}%"
-   
+    
+    
+    print("Output: 2nd stage", output)    # 🔹 Return the output
+    # return output
    
     return give_output_of_analyze_emails_with_gemini(output)
 
