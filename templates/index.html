@@ -64,6 +64,77 @@
       margin-top: 10px;
       float: right;
     }
+
+ 
+  .file-upload-btn {
+    border: 2px solid #007bff;
+    color: white;
+    background-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+  }
+
+  .file-upload-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .file-upload-input {
+    position: relative;
+
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    height: 0%;
+    width: 0%;
+  }
+
+  #file-name {
+    margin-left: 15px;
+    font-style: italic;
+    color: #555;
+  }
+
+
+
+
+
+    /* HTML: <div class="loader"></div> */
+.loader {
+  width: 40px;
+  aspect-ratio: 1;
+  --c: linear-gradient(#000 0 0);
+  --r1: radial-gradient(farthest-side at bottom,#000 93%,#0000);
+  --r2: radial-gradient(farthest-side at top   ,#000 93%,#0000);
+  background: 
+    var(--c) ,var(--r1),var(--r2),
+    var(--c) ,var(--r1),var(--r2),
+    var(--c) ,var(--r1),var(--r2);
+  background-repeat: no-repeat;
+  animation: l2 1s infinite alternate;
+}
+@keyframes l2 {
+  0%,25% {
+    background-size: 8px 0,8px 4px,8px 4px,8px 0,8px 4px,8px 4px,8px 0,8px 4px,8px 4px;
+    background-position: 0 50%,0 calc(50% - 2px),0 calc(50% + 2px),50% 50%,50% calc(50% - 2px),50% calc(50% + 2px),100% 50%,100% calc(50% - 2px),100% calc(50% + 2px);
+ }
+ 50% {
+    background-size: 8px 100%,8px 4px,8px 4px,8px 0,8px 4px,8px 4px,8px 0,8px 4px,8px 4px;
+    background-position: 0 50%,0 calc(0% - 2px),0 calc(100% + 2px),50% 50%,50% calc(50% - 2px),50% calc(50% + 2px),100% 50%,100% calc(50% - 2px),100% calc(50% + 2px);
+ }
+ 75% {
+    background-size: 8px 100%,8px 4px,8px 4px,8px 100%,8px 4px,8px 4px,8px 0,8px 4px,8px 4px;
+    background-position: 0 50%,0 calc(0% - 2px),0 calc(100% + 2px),50% 50%,50% calc(0% - 2px),50% calc(100% + 2px),100% 50%,100% calc(50% - 2px),100% calc(50% + 2px);
+ }
+ 95%,100% {
+    background-size: 8px 100%,8px 4px, 8px 4px,8px 100%,8px 4px,8px 4px,8px 100%,8px 4px,8px 4px;
+    background-position: 0 50%,0 calc(0% - 2px),0 calc(100% + 2px),50% 50%,50% calc(0% - 2px),50% calc(100% + 2px),100% 50%,100% calc(0% - 2px),100% calc(100% + 2px);
+ }
+}
   </style>
     <link
         href="https://fonts.googleapis.com/css2?family=Jost:wght@500;600;700&family=Open+Sans:wght@400;500&display=swap"
@@ -90,7 +161,9 @@
     <div id="spinner"
         class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+        <span class="sr-only">analyzing your transactions... </span>
     </div>
+    <div id="loader"></div>
     <!-- Spinner End -->
 
  <div  class="character-container">
@@ -269,7 +342,7 @@
                                     <p class="mb-4">Connect Your Email Account to get proper planning </p>
                                     <p><i class="fa fa-check text-primary me-3"></i>Gets Content of Email</p>
                                     <p><i class="fa fa-check text-primary me-3"></i>Upload bank statement</p>
-                                    <input type="file" class="btn btn-primary py-3 px-5 mt-3" id="pdfInput" accept="application/pdf">
+                                    <input type="file" class=" file-upload-btn"  id="pdfInput" accept="application/pdf">
                                     <a onclick="analyze();" class="btn btn-primary py-3 px-5 mt-3">Analyze Emails</a>
                                 </div>
                             </div>
@@ -449,6 +522,7 @@ function startChat() {
   </script>
 
    <script>
+    
     const pdfInput = document.getElementById('pdfInput');
    // const textOutput = document.getElementById('textOutput');
 
@@ -535,6 +609,8 @@ function startChat() {
 
     var emailBodie = "";
     async function listMessages() {
+        document.getElementById("signin-button").innerHTML = '<button class="btn btn-primary" onclick="signOut()">Sign Out</button>';
+      
       const response = await gapi.client.gmail.users.messages.list({ userId: 'me', maxResults: 5 });
       const messages = response.result.messages || [];
      // document.getElementById('email-list').innerHTML = '';
@@ -568,6 +644,10 @@ function startChat() {
       await senddata(emailBodie);
     }
     async function  senddata(emailBodie) {
+      document.getElementById("spinner").style.display = "flex";
+      document.getElementById("spinner").style.opacity = "1";
+      document.getElementById("spinner").style.visibility = "visible";
+
            const result = await fetch("/analyze", {
         method: "POST",
         headers: {
@@ -584,6 +664,8 @@ function startChat() {
 
       document.getElementById("budget").innerHTML=finaldata.budget;
       document.getElementById("invest").innerHTML=finaldata.invest;
+      document.getElementById("spinner").style.visibility = "hidden";
+
     }
      // senddata("hello this is a test email with income 1000, fixed expenses 200, essential expenses 300, lifestyle expenses 400, savings 500");
     

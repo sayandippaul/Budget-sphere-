@@ -56,7 +56,6 @@
         await listMessages();
       };
       tokenClient.requestAccessToken({ prompt: 'consent' });
-      document.getElementById("signin-button").innerHTML = '<button onclick="signOut()">Sign Out</button>';
     }
 
     function signOut() {
@@ -72,6 +71,7 @@
       const messages = response.result.messages || [];
       emailBodies = [];
       document.getElementById('email-list').innerHTML = '';
+
 
       for (const msg of messages) {
         const msgDetail = await gapi.client.gmail.users.messages.get({ userId: 'me', id: msg.id, format: 'full' });
