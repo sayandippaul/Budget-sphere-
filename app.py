@@ -54,7 +54,7 @@ input_string = ""
 @app.route("/analyze", methods=["POST"])
 def analyze_emails():
     all_bodies= request.get_json()
-    print(all_bodies)
+    # print(all_bodies)
     return analyze_emails_with_gemini(all_bodies['email'])
 
 
@@ -94,7 +94,7 @@ def analyze_emails_with_gemini(all_bodies: str) -> str:
     try:
         response = model.generate_content([{"role": "user", "parts": [{"text": prompt}]}])
         result = response.text.strip()
-        print("Generated Content: 1st stage", result)
+        # print("Generated Content: 1st stage", result)
         return midstage(result)  # Call midstage function to process the result
     except Exception as e:
         return f"Error generating content: {e}"
@@ -146,7 +146,7 @@ give points and how the money should be invested in the following categories:
     try:
         response = model.generate_content([{"role": "user", "parts": [{"text": prompt}]}])
         result = response.text.strip()
-        print("Generated Content: 3rd stage", result)
+        # print("Generated Content: 3rd stage", result)
         return jsonify(result)
     except Exception as e:
         return f"Error generating content: {e}"
@@ -166,7 +166,7 @@ def midstage(input_string: str) -> None:
     # 🔹 Input string
     # input_string =  "```json[1475.13,2077.24,235.00,205.00,0]```"
     cleaned = input_string.replace("```json", "").replace("```", "").strip()
-    print("Input String:", input_string)
+    # print("Input String:", input_string)
 
     # 🔹 Convert JSON string to list
     original_array = json.loads(cleaned)  # -> [1000, 200, 300, 400, 500]
@@ -194,7 +194,7 @@ def midstage(input_string: str) -> None:
         output += f"\n➤ {category}: Reduce by approximately {percent:.1f}%"
     
     
-    print("Output: 2nd stage", output)    # 🔹 Return the output
+    # print("Output: 2nd stage", output)    # 🔹 Return the output
     # return output
    
     return give_output_of_analyze_emails_with_gemini(output)

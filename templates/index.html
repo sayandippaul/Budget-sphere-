@@ -24,7 +24,7 @@
       z-index: 1000;
     }
     .character-img {
-      width: 120px;
+      width: 90px;
       border-radius: 100%;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
       transition: transform 0.3s ease;
@@ -32,15 +32,17 @@
     }
     .chat-box {
       background: white;
-      border-radius: 12px;
+      border-radius: 22px;
       padding: 15px 20px;
       margin-left: 15px;
       box-shadow: 0 0 10px rgba(0,0,0,0.15);
-      max-width: 300px;
+      max-width: 200px;
+      background:url('static/img/chatbot_background.jpeg') no-repeat center center;
+      background-size: cover;
     }
     .chat-box p {
       margin: 0;
-      font-size: 16px;
+      font-size: 12px;
     }
     .input-box {
       margin-top: 10px;
@@ -91,8 +93,8 @@
     </div>
     <!-- Spinner End -->
 
- <div class="character-container">
-    <img src="static/img/character.jpeg" alt="Character" class="character-img" />
+ <div  class="character-container">
+    <img onclick="startChat();" src="static/img/chatbot_background.png" style="transform: scaleX(-1);" alt="Character" class="character-img" />
     <div class="chat-box" id="chatBox">
       <p id="chatText">Hello! I'm Finny 🦊. What's your name?</p>
       <div class="input-box" id="inputContainer">
@@ -195,32 +197,25 @@
                                 <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
                                     <div class="feature-box border rounded p-4">
                                         <i class="fa fa-check fa-3x text-primary mb-3"></i>
-                                        <h4 class="mb-3">Fast Executions</h4>
-                                        <p class="mb-3">Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo
-                                            justo erat amet</p>
-                                        <a class="fw-semi-bold" href="">Read More <i
-                                                class="fa fa-arrow-right ms-1"></i></a>
+                                        <h4 class="mb-3">📩 Smart Email & Statement Analysis</h4>
+                                        <p class="mb-3">Empowering your money, one email at a time.</p>
+                                        
                                     </div>
                                 </div>
                                 <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
                                     <div class="feature-box border rounded p-4">
                                         <i class="fa fa-check fa-3x text-primary mb-3"></i>
-                                        <h4 class="mb-3">Guide & Support</h4>
-                                        <p class="mb-3">Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo
-                                            justo erat amet</p>
-                                        <a class="fw-semi-bold" href="">Read More <i
-                                                class="fa fa-arrow-right ms-1"></i></a>
-                                    </div>
+                                        <h4 class="mb-3">💼 Personalized Budget Planning</h4>
+                                        <p class="mb-3">Smart budgeting meets seamless automation.</p>
+                                        </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
                             <div class="feature-box border rounded p-4">
                                 <i class="fa fa-check fa-3x text-primary mb-3"></i>
-                                <h4 class="mb-3">Financial Secure</h4>
-                                <p class="mb-3">Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo
-                                    erat amet</p>
-                                <a class="fw-semi-bold" href="">Read More <i class="fa fa-arrow-right ms-1"></i></a>
+                                <h4 class="mb-3">📈 AI-Powered Saving & Investment Guidance</h4>
+                                <p class="mb-3">From income to investment — plan with precision.</p>
                             </div>
                         </div>
                     </div>
@@ -238,7 +233,7 @@
         <div class="container">
             <div class="text-center mx-auto wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
                 <p class="d-inline-block border rounded text-primary fw-semi-bold py-1 px-3">Our Services</p>
-                <h1 class="display-5 mb-5">Awesome Financial Services For Business</h1>
+                <h1 class="display-5 mb-5">Automated budgeting through email analysis with smart saving and investing.</h1>
             </div>
             <div class="row g-4 wow fadeInUp" data-wow-delay="0.3s">
                 <div class="col-lg-4">
@@ -364,26 +359,45 @@
     const chatText = document.getElementById("chatText");
     const userInput = document.getElementById("userInput");
 
-    const flow = [
-      { text: "Hello! I'm Finny 🦊. What's your name?", field: "name" },
-      { text: "Nice to meet you, {name}! Now I will tell you how to interact with our ", field: "income" },
-      { text: "Got it! How much do you usually spend on food?", field: "food" },
-      { text: "Thanks! We'll use this to plan your budget! 🎯", field: null }
-    ];
-
+   const flow = [
+{ text: "Hi there! I'm Finny . What's your name?", field: "name" },
+{ text: "Nice to meet you, {name}! Let me show you how BudgetSphere works.", field: "name" },
+{ text: "First, you'll need to connect your email. We'll scan your inbox for transaction-related messages.", field: "name" },
+{ text: "Based on those emails, we'll create a personalized budget just for you! ", field: "name" },
+{ text: "We'll also give you tips on how to save more and invest smarter.", field: "name" },
+{ text: "Please go ahead and connect your email to continue.", field: "name" },
+{ text: "Next, upload your bank statement in PDF format.", field: "name" },
+{ text: "Awesome! We'll now analyze your emails and bank data to build your financial roadmap.", field: "name" },
+{ text: "You're all set! Let’s begin your financial journey! ", field: null }
+];
     const userData = {};
     let step = 0;
+      document.getElementById("chatBox").style.display = "none";
+
+function startChat() {
+  step=0;
+      document.getElementById("chatBox").style.display = "block";
+      document.getElementById("userInput").style.display = "block";
+      document.getElementById("userInput").value = "";
+      userInput.focus();
+      speakText(flow[step].text);
+    }
 
     function nextStep() {
       const value = userInput.value.trim();
       if (value === "" && flow[step].field) return;
 
       const field = flow[step].field;
+      if (field==null) {
+        document.getElementById("chatBox").style.display = "none";
+        step=0;
+       }
       if (field) {
         userData[field] = value;
       }
 
       step++;
+      speakText(flow[step].text);
 
       if (step < flow.length) {
         let nextText = flow[step].text;
@@ -391,14 +405,47 @@
           nextText = nextText.replace(`{${key}}`, userData[key]);
         });
         chatText.innerText = nextText;
-        userInput.value = "";
-        if (!flow[step].field) document.getElementById("inputContainer").style.display = "none";
-      } else {
-        chatText.innerText = "You're all set! 🚀";
-        document.getElementById("inputContainer").style.display = "none";
-        console.log("User Data:", userData);
+        if (step>0) document.getElementById("userInput").style.display = "none";
       }
     }
+
+    function speakText(text) {
+  if ('speechSynthesis' in window) {
+    const synth = window.speechSynthesis;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US'; // Set language
+
+    // Wait for voices to be loaded before selecting
+    const setFemaleVoice = () => {
+      const voices = synth.getVoices();
+      // Try to find a female English voice
+      const femaleVoice = voices.find(voice =>
+        voice.lang.startsWith('en') &&
+        (voice.name.toLowerCase().includes('female') || voice.name.toLowerCase().includes('woman') || voice.name.toLowerCase().includes('samantha'))
+      );
+
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      } else {
+        // fallback: pick any English voice
+        utterance.voice = voices.find(voice => voice.lang.startsWith('en')) || null;
+      }
+
+      synth.speak(utterance);
+    };
+
+    // Some browsers need a timeout or event
+    if (synth.getVoices().length === 0) {
+      // Chrome workaround: wait for the voiceschanged event
+      window.speechSynthesis.onvoiceschanged = setFemaleVoice;
+    } else {
+      setFemaleVoice();
+    }
+  } else {
+    console.warn("Speech synthesis not supported in this browser.");
+  }
+}
+
   </script>
 
    <script>
